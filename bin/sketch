@@ -1,0 +1,12 @@
+#!/usr/bin/ruby
+
+# Author:		Chris Wailes <chris.wailes@gmail.com>
+# Project:	Sketch
+# Date:		2013/04/08
+# Description:	The actual Sketch script.
+
+require 'sketch'
+
+include Sketch
+
+Commands.(ARGV.shift)
