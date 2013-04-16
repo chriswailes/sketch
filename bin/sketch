@@ -9,4 +9,8 @@ require 'sketch'
 
 include Sketch
 
-Commands.(ARGV.shift)
+if ARGV.empty?
+	puts 'No command given.'
+else
+	Commands.(ARGV.shift)
+end

@@ -8,23 +8,33 @@ require 'pp'
 module Sketch
 	module Commands
 		
+		###########
+		# Classes #
+		###########
+		
+		class Command
+			def initialize
+			
+			end
+		end
+		
 		##################
 		# Infrestructure #
 		##################
 		
 		@commands = Hash.new
 		
-		def self.command(key, &block)
-			@commands[key] = block
+		def self.command(name, *rest, &block)
+			@commands[name] = Command.new(name, *rest, &block)
 		end
 		
-		def self.call(key)
-			key = key.to_sym
+		def self.call(name)
+			name = name.to_sym
 			
-			if @commands.key?(key)
-				@commands[key].call
+			if @commands.key?(name)
+				@commands[name].call
 			else
-				puts "Invalid command: #{key}"
+				puts "Invalid command: #{name}"
 			end
 		end
 		
@@ -32,22 +42,33 @@ module Sketch
 		# Data #
 		########
 		
-		INIT_FILES = [
-			'AUTHORS',
-			'LICENSE',
-			'README.md',
-			'TODO',
+		INIT_FILES = {
+			'AUTHORS'		=> ->() { "#{CONFIG.author} <#{CONFIG.author_email}>" },
+			'LICENSE'		=> ->() { LICENSES[CONFIG.license] },
+			'README.md'	=> ->() {},
+			'TODO'		=> ->() {},
 			
-			'.gitignore',
-			'.sketch'
-		]
+			'.gitignore'	=> ->() { CONFIG.language_module.gitignore },
+			'.sketch'		=> ->() { CONFIG.dump_project_config }
+		}
 		
 		############
 		# Commands #
 		############
 		
-		command :init do
-			pp CONFIG
+		command :init,
+			[:language, "Project's main language"],
+			[:working_path, "Project's root directory", FileUtils.pwd],
+			"Initialize a project directory with general project files and language specific files." do
+			
+			project_init_files = INIT_FILES.clone.update CONFIG.language_module.init_files
+			
+			pp project_init_files.keys
 		end
+		
+		####################
+		# Helper Functions #
+		####################
+		
 	end
 end

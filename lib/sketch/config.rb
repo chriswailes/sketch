@@ -11,17 +11,28 @@ module Sketch
 	SKETCH_FILE		= '.sketch'
 	USER_SKETCH_FILE	= File.expand_path "~/#{SKETCH_FILE}"
 	
+	
+	
 	class Config
-		FIELDS = [
+		COMMAND_FIELDS = [
+			:working_path
+		]
+		
+		GLOBAL_FIELDS = [
 			:author,
 			:author_email,
-			:author_website,
+			:author_website
+		]
 		
+		PROJECT_FIELDS = [
 			:project_name,
 			:project_website,
 			
-			:working_path
+			:language,
+			:license
 		]
+		
+		FIELDS = COMMAND_FIELDS + GLOBAL_FIELDS + PROJECT_FIELDS
 		
 		####################
 		# Instance Methods #
@@ -29,6 +40,26 @@ module Sketch
 		
 		# Define accessors for each of the fields.
 		FIELDS.each { |f| attr_accessor f }
+		
+		def dump_project_config
+			YAML.dump PROJECT_FIELDS.inject(Hash.new) { |h, f| h[f] = self.send f; h }
+		end
+		
+		def language_module
+			case self.language
+			when 'c', 'C'			then C
+			when 'ruby', 'Ruby'		then Ruby
+			when 'scala', 'Scala'	then Scala
+			end
+		end
+		
+		def parse_config(*spec)
+			required_ops = spec.select { |o| not o.is_a?(Array) }
+			
+			if ARGV.length < required_ops.length
+				raise ''
+			end
+		end
 		
 		def update(hash)
 			hash.each do |k, v|
