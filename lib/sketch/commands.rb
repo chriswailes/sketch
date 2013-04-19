@@ -125,10 +125,22 @@ module Sketch
 		# Commands #
 		############
 		
-		command :foo,
-			'A temp helper command.' do
+		command :file,
+			[:filename, 'Name of the file to sketch.'],
+			'Create a file with a default header and body.' do
 			
-			pp CONFIG
+			CONFIG.working_path = FileUtils.pwd
+			CONFIG.update_from_path
+			
+			if File.exist?(CONFIG.filename)
+				puts "File #{CONFIG.filename} already exists."
+			else
+				File.open(CONFIG.filename, 'w') do |f|
+					f.puts CONFIG.language_module.file_header
+					f.puts
+					f.puts CONFIG.language_module.file_body
+				end
+			end
 		end
 		
 		command :help,
@@ -161,23 +173,16 @@ module Sketch
 			
 			project_files = INIT_FILES.clone.update CONFIG.language_module.init_files
 			
-			# puts "Working path:"
-			# puts CONFIG.working_path
-			
 			Dir.mkdir(CONFIG.working_path) if not Dir.exist?(CONFIG.working_path)
 			Dir.chdir CONFIG.working_path
 			
-			# puts "Creating the following directories:"
-			# project_dirs.each { |d| puts d }
-			
+			# Creating the project directories.
 			project_dirs.each { |d| Dir.mkdir d }
 			
-			# puts "Creating the following files:"
-			# project_files.each_key { |f| puts f }
-			
+			# Creating the project files.
 			project_files.each { |f, s| File.open(f, 'w') { |f| f.print(if s.is_a?(Proc) then s.() else s end) } }
 			
-			# puts "Doing the git stuff."
+			# Doing the git stuff.
 			`git init`
 			`git add .`
 			`git commit -m 'Initial commit for the #{CONFIG.project_name} project.'`

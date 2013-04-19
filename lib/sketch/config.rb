@@ -17,6 +17,7 @@ module Sketch
 	class Config
 		COMMAND_FIELDS = [
 			:command,
+			:filename,
 			:working_path
 		]
 		

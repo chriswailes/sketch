@@ -16,6 +16,23 @@ module Sketch
 # Description:	#{file_description}
 EOF
 			end
+			
+			def file_body
+				<<EOF
+############
+# Requires #
+############
+
+# Standard Library
+
+# #{CONFIG.project_long_name or CONFIG.project_name}
+
+#######################
+# Classes and Modules #
+#######################
+
+EOF
+			end
 		
 			def gitignore
 				<<EOF
