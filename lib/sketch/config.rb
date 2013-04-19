@@ -6,15 +6,17 @@
 # Standard library requires
 require 'yaml'
 
+# Sketch requires
+require 'sketch/licenses'
+
 module Sketch
 	
 	SKETCH_FILE		= '.sketch'
 	USER_SKETCH_FILE	= File.expand_path "~/#{SKETCH_FILE}"
 	
-	
-	
 	class Config
 		COMMAND_FIELDS = [
+			:command,
 			:working_path
 		]
 		
@@ -25,7 +27,11 @@ module Sketch
 		]
 		
 		PROJECT_FIELDS = [
+			:organization_name,
+			:organization_website,
+			
 			:project_name,
+			:project_long_name,
 			:project_website,
 			
 			:language,
@@ -47,9 +53,17 @@ module Sketch
 		
 		def language_module
 			case self.language
-			when 'c', 'C'			then C
-			when 'ruby', 'Ruby'		then Ruby
-			when 'scala', 'Scala'	then Scala
+			when 'c', 'C'
+				require 'sketch/c'
+				C
+				
+			when 'ruby', 'Ruby'
+				require 'sketch/ruby'	
+				Ruby
+				
+			when 'scala', 'Scala'
+				require 'sketch/scala'	
+				Scala
 			end
 		end
 		
@@ -61,9 +75,13 @@ module Sketch
 			end
 		end
 		
+		def set(name, val)
+			self.instance_variable_set("@#{name}".to_sym, val) if FIELDS.include?(name)
+		end
+		
 		def update(hash)
 			hash.each do |k, v|
-				self.instance_variable_set("@#{k}".to_sym, v) if FIELDS.include?(k.to_sym)
+				self.set(k.to_sym, v)
 			end
 		end
 		
@@ -92,10 +110,11 @@ module Sketch
 	# Create our configuration object.
 	CONFIG = Config.new
 	
+	# Set the license to NCSA for now.
+	CONFIG.license = :ncsa
+	
 	# Load the user's .sketch file if it is present.
 	if File.exist?(USER_SKETCH_FILE)
-		pp (YAML.load_file USER_SKETCH_FILE)
-		
 		CONFIG.update(YAML.load_file USER_SKETCH_FILE)
 	end
 end

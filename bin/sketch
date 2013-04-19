@@ -7,10 +7,4 @@
 
 require 'sketch'
 
-include Sketch
-
-if ARGV.empty?
-	puts 'No command given.'
-else
-	Commands.(ARGV.shift)
-end
+Sketch::Commands.(ARGV.shift)
